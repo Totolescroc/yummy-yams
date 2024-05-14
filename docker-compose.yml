@@ -4,10 +4,8 @@ services:
     build: ./api
     ports:
       - "3001:3001"
-    environment:
-      - PORT=3001
-      - MONGO_URI=mongodb://mongo:27017/yummyyams
-      - JWT_SECRET=your_secret_key
+    env_file:
+      - .env
     depends_on:
       - mongo
 
