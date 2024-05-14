@@ -55,7 +55,9 @@ exports.rollDice = async (req, res) => {
     // Créer un enregistrement de jeu
     const newGame = new Game({
       userId: req.user.id,
-      score: dice,
+      dice: dice,
+      score: dice.reduce((total, num) => total + num, 0), // Exemple simple de calcul de score
+      result: result,
       pastryWon: pastryAward
     });
     await newGame.save();
