@@ -8,7 +8,8 @@ services:
       - .env
     depends_on:
       - mongo
-
+    volumes:
+      - ./api/pastries:/usr/src/app/pastries
   app:
     build: ./app
     ports:
@@ -22,6 +23,16 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  import:
+    build: ./api
+    command: ["npm", "run", "import:pastries"]
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    volumes:
+      - ./pastries:/usr/src/app/pastries # Monter le répertoire des pâtisseries
 
 volumes:
   mongo_data:

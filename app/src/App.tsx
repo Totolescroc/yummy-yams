@@ -1,25 +1,22 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
+import Home from './components/Home';
 import Game from './components/Game';
-import { RootState } from './redux/store';
 
 const App: React.FC = () => {
-  const token = useSelector((state: RootState) => state.user.token);
-
   return (
-    <div className="App">
-      <h1>Yummy Yams</h1>
-      {!token ? (
-        <>
-          <Register />
-          <Login />
-        </>
-      ) : (
-        <Game />
-      )}
-    </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/game" element={<Game />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

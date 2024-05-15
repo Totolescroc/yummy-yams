@@ -1,37 +1,70 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import api from '../axiosConfig';
-import { setUser } from '../redux/userSlice';
+import axios from 'axios';
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post('/users/register', { username, password });
-      const { token } = response.data;
-      dispatch(setUser({ username, token }));
-      localStorage.setItem('token', token);
-    } catch (error) {
-      console.error('Registration failed:', error);
+      const response = await axios.post('http://localhost:3001/users/register', {
+        username,
+        password
+      });
+      if (response.status === 201) {
+        setMessage('Registration successful!');
+        setUsername('');
+        setPassword('');
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.log('Axios error response:', error.response);
+        if (error.response) {
+          console.log('Status:', error.response.status);
+          console.log('Data:', error.response.data);
+          if (error.response.status === 409) {
+            setMessage('User already exists');
+          } else {
+            setMessage('Registration failed. Please try again.');
+          }
+        } else {
+          setMessage('Registration failed. Please try again.');
+        }
+      } else {
+        console.error('Unexpected error:', error);
+        setMessage('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Username</label>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-      </div>
-      <div>
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      </div>
-      <button type="submit">Register</button>
-    </form>
+    <div>
+      <h2>Register</h2>
+      {message && <p>{message}</p>}
+      <form onSubmit={handleRegister}>
+        <div>
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
 };
 
