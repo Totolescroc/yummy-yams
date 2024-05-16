@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './App.css'; // Assurez-vous d'importer les styles CSS
 
 const Game: React.FC = () => {
   const [dice, setDice] = useState<number[]>([]);
   const [message, setMessage] = useState('');
   const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [pastryAward, setPastryAward] = useState<{ name: string; image: string }[]>([]);
+  const [rolling, setRolling] = useState(false);
 
   const rollDice = async () => {
     try {
+      setRolling(true); // Commencez l'animation
       const token = localStorage.getItem('token');
       const response = await axios.post(
         'http://localhost:3001/game/roll',
@@ -21,14 +24,18 @@ const Game: React.FC = () => {
       );
 
       if (response.status === 200) {
-        setDice(response.data.dice);
-        setMessage(response.data.message);
-        setAttemptsLeft(response.data.attemptsLeft);
-        setPastryAward(response.data.pastryAward);
+        setTimeout(() => {
+          setRolling(false); // Arrêtez l'animation après 1 seconde
+          setDice(response.data.dice);
+          setMessage(response.data.message);
+          setAttemptsLeft(response.data.attemptsLeft);
+          setPastryAward(response.data.pastryAward);
+        }, 1000); // Durée de l'animation en millisecondes
       }
     } catch (error) {
       console.error('Error rolling dice:', error);
       setMessage('Failed to roll dice. Please try again.');
+      setRolling(false); // Arrêtez l'animation en cas d'erreur
     }
   };
 
@@ -38,10 +45,10 @@ const Game: React.FC = () => {
       <p>{message}</p>
       <div>
         {dice.map((die, index) => (
-          <span key={index}>{die} </span>
+          <span key={index} className={`dice ${rolling ? 'roll' : ''}`}>{die}</span>
         ))}
       </div>
-      <button onClick={rollDice} disabled={attemptsLeft === 0}>
+      <button onClick={rollDice} disabled={attemptsLeft === 0 || rolling}>
         Roll Dice
       </button>
       <p>Attempts left: {attemptsLeft}</p>

@@ -5,39 +5,31 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3001/users/login', {
         username,
-        password
+        password,
       });
       if (response.status === 200) {
-        setMessage('Login successful!');
-        setUsername('');
-        setPassword('');
-        const { token } = response.data;
-        localStorage.setItem('token', token);
-        navigate('/game');
+        localStorage.setItem('token', response.data.token);
+        navigate('/game'); // Rediriger vers la page du jeu après connexion réussie
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.status === 404) {
-            setMessage('User not found');
-          } else if (error.response.status === 400) {
-            setMessage('Invalid password');
-          } else {
-            setMessage('Login failed. Please try again.');
-          }
+        if (error.response?.status === 404) {
+          setError('User not found');
+        } else if (error.response?.status === 400) {
+          setError('Invalid credentials');
         } else {
-          setMessage('Login failed. Please try again.');
+          setError('Login failed. Please try again.');
         }
       } else {
-        setMessage('An unexpected error occurred. Please try again.');
+        setError('Login failed. Please try again.');
       }
     }
   };
@@ -45,8 +37,7 @@ const Login: React.FC = () => {
   return (
     <div>
       <h2>Login</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSubmit}>
         <div>
           <label>Username:</label>
           <input
@@ -66,6 +57,7 @@ const Login: React.FC = () => {
           />
         </div>
         <button type="submit">Login</button>
+        {error && <p>{error}</p>}
       </form>
     </div>
   );

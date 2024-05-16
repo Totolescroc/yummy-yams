@@ -1,40 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3001/users/register', {
         username,
-        password
+        password,
       });
       if (response.status === 201) {
-        setMessage('Registration successful!');
-        setUsername('');
-        setPassword('');
+        navigate('/login'); // Rediriger vers la page de connexion après inscription réussie
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log('Axios error response:', error.response);
-        if (error.response) {
-          console.log('Status:', error.response.status);
-          console.log('Data:', error.response.data);
-          if (error.response.status === 409) {
-            setMessage('User already exists');
-          } else {
-            setMessage('Registration failed. Please try again.');
-          }
+        if (error.response?.status === 409) {
+          setError('Username already exists');
         } else {
-          setMessage('Registration failed. Please try again.');
+          setError('Registration failed. Please try again.');
         }
       } else {
-        console.error('Unexpected error:', error);
-        setMessage('An unexpected error occurred. Please try again.');
+        setError('Registration failed. Please try again.');
       }
     }
   };
@@ -42,8 +34,7 @@ const Register: React.FC = () => {
   return (
     <div>
       <h2>Register</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleSubmit}>
         <div>
           <label>Username:</label>
           <input
@@ -63,6 +54,7 @@ const Register: React.FC = () => {
           />
         </div>
         <button type="submit">Register</button>
+        {error && <p>{error}</p>}
       </form>
     </div>
   );
