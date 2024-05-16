@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../App.css'; 
+import '../App.css'; // Chemin relatif correct
 
 const Game: React.FC = () => {
   const [dice, setDice] = useState<number[]>([]);
@@ -11,7 +11,7 @@ const Game: React.FC = () => {
 
   const rollDice = async () => {
     try {
-      setRolling(true); // Commence l'animation
+      setRolling(true); // Commencez l'animation
       const token = localStorage.getItem('token');
       const response = await axios.post(
         'http://localhost:3001/game/roll',
@@ -25,17 +25,17 @@ const Game: React.FC = () => {
 
       if (response.status === 200) {
         setTimeout(() => {
-          setRolling(false); // Arrêt l'animation après 1 seconde
-          setDice(response.data.dice);
-          setMessage(response.data.message);
-          setAttemptsLeft(response.data.attemptsLeft);
-          setPastryAward(response.data.pastryAward);
+          setRolling(false); // Arrêtez l'animation après 1 seconde
+          setDice(response.data.dice || []); // Ajout de || [] pour éviter les erreurs si dice est null
+          setMessage(response.data.message || ''); // Ajout de || '' pour éviter les erreurs si message est null
+          setAttemptsLeft(response.data.attemptsLeft ?? 0); // Ajout de ?? 0 pour éviter les erreurs si attemptsLeft est null
+          setPastryAward(Array.isArray(response.data.pastryAward) ? response.data.pastryAward : []); // Assurez-vous que pastryAward est un tableau
         }, 1000); // Durée de l'animation en millisecondes
       }
     } catch (error) {
       console.error('Error rolling dice:', error);
       setMessage('Failed to roll dice. Please try again.');
-      setRolling(false); // Arrêt l'animation en cas d'erreur
+      setRolling(false); // Arrêtez l'animation en cas d'erreur
     }
   };
 
@@ -51,14 +51,14 @@ const Game: React.FC = () => {
       <button onClick={rollDice} disabled={attemptsLeft === 0 || rolling}>
         Roll Dice
       </button>
-      <p>Essais restants: {attemptsLeft}</p>
+      <p>Attempts left: {attemptsLeft}</p>
       {pastryAward.length > 0 && (
         <div>
-          <h3>Félcitation !! Vous avez gagné ces patisseries:</h3>
+          <h3>Congratulations! You have won the following pastries:</h3>
           <ul>
             {pastryAward.map((pastry, index) => (
               <li key={index}>
-                <img src={`http://localhost:3001/pastries/images/${pastry.image}`} alt={pastry.name} style={{ width: '200px', height: '200px' }} />
+                <img src={`http://localhost:3001/pastries/images/${pastry.image}`} alt={pastry.name} style={{ width: '100px', height: '100px' }} />
                 {pastry.name}
               </li>
             ))}
