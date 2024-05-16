@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir les fichiers statiques du répertoire "pastries/images"
+
 const imagesPath = path.join(__dirname, '../pastries/images');
 console.log('Serving static files from', imagesPath);
 app.use('/pastries/images', express.static(imagesPath));

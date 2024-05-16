@@ -21,7 +21,7 @@ router.post('/win', async (req, res) => {
       pastry.stock -= 1;
       pastry.quantityWon += 1;
       await pastry.save();
-      // Vérifier si toutes les pastries sont épuisées
+      // si toutes les pastries sont épuisées
       const allPastries = await Pastry.find();
       const gameOver = allPastries.every(p => p.stock === 0);
       res.json({ pastry, gameOver });

@@ -9,9 +9,9 @@ exports.rollDice = async (req, res) => {
 
   try {
     const user = await User.findById(req.user.id);
-    // if (user.attempts >= 3) {
-    //   return res.status(403).send('Vous avez atteint le nombre maximal de tentatives (3).');
-    // }
+    if (user.attempts >= 3) {
+      return res.status(403).send('Vous avez atteint le nombre maximal de tentatives (3).');
+    }
 
     user.attempts += 1;
     await user.save();
